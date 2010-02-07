@@ -1,0 +1,30 @@
+= NativeSupport
+
+NativeSupport is a project whose aim is to identify areas of the
+{ActiveSupport}[http://as.rubyonrails.org/] library that lend themselves to
+optimization with native code implementations, and provide those implementations
+as API-transparent replacements.
+
+NativeSupport is currently in the experimental stages but I would like to get
+more people involved and begin releasing it as a gem. Since each native
+implementation is useful on its own, the project lends itself to incremental
+releases.
+
+The following methods currently have native code implementations:
+
+* ActiveSupport::Inflector.camelize
+* ActiveSupport::Inflector.underscore
+* ActiveSupport::Inflector.dasherize
+* ActiveSupport::Inflector.ordinalize
+* ActiveSupport::Inflector.demodulize
+* ActiveSupport::Inflector.constantize
+* ActiveSupport::CoreExtensions::Float::Rounding#round_with_precision
+
+If you think this is an interesting project, please contribute! Send me a pull
+request on GitHub, and if your work looks good, I'll add you as a committer to
+the main repo.
+
+=== This is free software
+
+This software is released in the public domain. The author(s) relinquish all
+copyright on this work to the maximum extent permitted by law.
