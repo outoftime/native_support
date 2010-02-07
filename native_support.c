@@ -9,6 +9,7 @@ VALUE method_camelize(VALUE self, VALUE str);
 VALUE method_underscore(VALUE self, VALUE str);
 VALUE method_dasherize(VALUE self, VALUE str);
 VALUE method_ordinalize(VALUE self, VALUE str);
+VALUE method_demodulize(VALUE self, VALUE str);
 
 void Init_native_support() {
   NativeSupport = rb_define_module("NativeSupport");
@@ -17,6 +18,7 @@ void Init_native_support() {
   rb_define_singleton_method(NativeSupport__Inflector, "underscore", method_underscore, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "dasherize", method_dasherize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "ordinalize", method_ordinalize, 1);
+	rb_define_singleton_method(NativeSupport__Inflector, "demodulize", method_demodulize, 1);
 }
 
 VALUE method_camelize(VALUE self, VALUE str) {
@@ -130,4 +132,28 @@ VALUE method_ordinalize(VALUE self, VALUE num) {
 	ordinalized_ruby_str = rb_str_new2(ordinalized_str);
 	free(ordinalized_str);
 	return ordinalized_ruby_str;
+}
+
+VALUE method_demodulize(VALUE self, VALUE str) {
+	char * orig_str = StringValuePtr(str);
+	int orig_str_len = strlen(orig_str);
+	char * demodulized_str = ALLOC_N(char, orig_str_len);
+	VALUE demodulized_ruby_str;
+	int o = 0, d = 0;
+	short state = 0;
+
+	for (o = 0; o < orig_str_len; o++) {
+		demodulized_str[d++] = orig_str[o];
+		if (orig_str[o] == ':') {
+			if (++state > 1) {
+				d = 0;
+			}
+		} else {
+			state = 0;
+		}
+	}
+
+	demodulized_ruby_str = rb_str_new(demodulized_str, d);
+	free(demodulized_str);
+	return demodulized_ruby_str;
 }

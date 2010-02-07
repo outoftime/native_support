@@ -16,7 +16,7 @@ def test_and_benchmark(as, ns, method, values)
     as_desc = "#{as.inspect}.#{method}(#{args.map { |arg| arg.inspect }.join(', ')})"
     abort("Expected #{expected.inspect}, got #{actual.inspect} from #{ns_desc}") unless expected == actual
 
-    Benchmark.bm(48) do |x|
+    Benchmark.bm(64) do |x|
       x.report(ns_desc) do
         N.times { ns.send(method, *args) }
       end
@@ -27,6 +27,8 @@ def test_and_benchmark(as, ns, method, values)
   end
 end
 
+test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :demodulize,
+                   %w(Class Namespaced::Class ::TopNamespacedClass Bogus:::Colons One:Colon Trailing::Colons::))
 test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :ordinalize,
                    [1, 2, 3, 4, 10, 11, 12, 13, 14, 21, 22, 23, 24])
 test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :dasherize,
