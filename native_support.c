@@ -2,6 +2,11 @@
 
 VALUE NativeSupport;
 VALUE NativeSupport__Inflector;
+VALUE NativeSupport__CoreExtensions;
+VALUE NativeSupport__CoreExtensions__Float;
+VALUE NativeSupport__CoreExtensions__Float__Rounding;
+VALUE NativeSupport__CoreExtensions__Hash;
+VALUE NativeSupport__CoreExtensions__Hash__DeepMerge;
 
 void Init_native_support();
 
@@ -11,16 +16,27 @@ VALUE method_dasherize(VALUE self, VALUE str);
 VALUE method_ordinalize(VALUE self, VALUE str);
 VALUE method_demodulize(VALUE self, VALUE str);
 VALUE method_constantize(VALUE self, VALUE str);
+VALUE method_round_with_precision(int argc, VALUE * argv, VALUE self);
 
 void Init_native_support() {
   NativeSupport = rb_define_module("NativeSupport");
   NativeSupport__Inflector = rb_define_module_under(NativeSupport, "Inflector");
+	NativeSupport__CoreExtensions = rb_define_module_under(NativeSupport, "CoreExtensions");
+	NativeSupport__CoreExtensions__Float = rb_define_module_under(NativeSupport__CoreExtensions, "Float");
+	NativeSupport__CoreExtensions__Float__Rounding =
+		rb_define_module_under(NativeSupport__CoreExtensions__Float, "Rounding");
+	NativeSupport__CoreExtensions__Hash = rb_define_module_under(NativeSupport__CoreExtensions, "Hash");
+	NativeSupport__CoreExtensions__Hash__DeepMerge =
+		rb_define_module_under(NativeSupport__CoreExtensions__Hash, "DeepMerge");
+
   rb_define_singleton_method(NativeSupport__Inflector, "camelize", method_camelize, 1);
   rb_define_singleton_method(NativeSupport__Inflector, "underscore", method_underscore, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "dasherize", method_dasherize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "ordinalize", method_ordinalize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "demodulize", method_demodulize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "constantize", method_constantize, 1);
+	rb_define_method(NativeSupport__CoreExtensions__Float__Rounding,
+									 "round_with_precision", method_round_with_precision, -1);
 }
 
 VALUE method_camelize(VALUE self, VALUE str) {
@@ -180,4 +196,17 @@ VALUE method_constantize(VALUE self, VALUE str) {
 
 	free(current_const_name);
 	return namespace;
+}
+
+VALUE method_round_with_precision(int argc, VALUE * argv, VALUE self) {
+	VALUE precision;
+	int cprecision;
+	double value;
+	if (rb_scan_args(argc, argv, "01", &precision) == 0) {
+		return rb_funcall(self, rb_intern("round_without_precision"), 0);
+	} else {
+		value = NUM2DBL(self);
+		cprecision = NUM2INT(precision);
+		return rb_float_new((float) round(value * (pow(10.0, cprecision))) / pow(10.0, cprecision));
+	}
 }
