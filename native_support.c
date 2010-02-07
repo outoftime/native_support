@@ -10,6 +10,7 @@ VALUE method_underscore(VALUE self, VALUE str);
 VALUE method_dasherize(VALUE self, VALUE str);
 VALUE method_ordinalize(VALUE self, VALUE str);
 VALUE method_demodulize(VALUE self, VALUE str);
+VALUE method_constantize(VALUE self, VALUE str);
 
 void Init_native_support() {
   NativeSupport = rb_define_module("NativeSupport");
@@ -19,6 +20,7 @@ void Init_native_support() {
 	rb_define_singleton_method(NativeSupport__Inflector, "dasherize", method_dasherize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "ordinalize", method_ordinalize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "demodulize", method_demodulize, 1);
+	rb_define_singleton_method(NativeSupport__Inflector, "constantize", method_constantize, 1);
 }
 
 VALUE method_camelize(VALUE self, VALUE str) {
@@ -156,4 +158,26 @@ VALUE method_demodulize(VALUE self, VALUE str) {
 	demodulized_ruby_str = rb_str_new(demodulized_str, d);
 	free(demodulized_str);
 	return demodulized_ruby_str;
+}
+
+VALUE method_constantize(VALUE self, VALUE str) {
+	char * full_const_name = StringValuePtr(str);
+	char * current_const_name = ALLOC_N(char, strlen(full_const_name));
+	VALUE namespace = rb_cObject;
+	int f = 0, c = 0;
+
+	do {
+		if (full_const_name[f] == ':' && full_const_name[f+1] == ':' || full_const_name[f] == '\0') {
+			if (c) {
+				current_const_name[c] = '\0';
+				namespace = rb_const_get(namespace, rb_intern(current_const_name));
+			}
+			c = 0; f++;
+		} else {
+			current_const_name[c++] = full_const_name[f];
+		}
+	} while (full_const_name[f++] != '\0');
+
+	free(current_const_name);
+	return namespace;
 }

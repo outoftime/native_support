@@ -8,6 +8,13 @@ N = 10000
 
 puts "Using #{N} runs"
 
+module Namespaced
+  module Inner
+    module Const
+    end
+  end
+end
+
 def test_and_benchmark(as, ns, method, values)
   values.each do |input|
     args = Array(input)
@@ -27,6 +34,8 @@ def test_and_benchmark(as, ns, method, values)
   end
 end
 
+test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :constantize,
+                   %w(Namespaced Namespaced::Inner Namespaced::Inner::Const ::Namespaced)) # meta testing
 test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :demodulize,
                    %w(Class Namespaced::Class ::TopNamespacedClass Bogus:::Colons One:Colon Trailing::Colons::))
 test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :ordinalize,
