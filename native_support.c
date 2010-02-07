@@ -5,8 +5,6 @@ VALUE NativeSupport__Inflector;
 VALUE NativeSupport__CoreExtensions;
 VALUE NativeSupport__CoreExtensions__Float;
 VALUE NativeSupport__CoreExtensions__Float__Rounding;
-VALUE NativeSupport__CoreExtensions__Hash;
-VALUE NativeSupport__CoreExtensions__Hash__DeepMerge;
 
 void Init_native_support();
 
@@ -25,9 +23,6 @@ void Init_native_support() {
 	NativeSupport__CoreExtensions__Float = rb_define_module_under(NativeSupport__CoreExtensions, "Float");
 	NativeSupport__CoreExtensions__Float__Rounding =
 		rb_define_module_under(NativeSupport__CoreExtensions__Float, "Rounding");
-	NativeSupport__CoreExtensions__Hash = rb_define_module_under(NativeSupport__CoreExtensions, "Hash");
-	NativeSupport__CoreExtensions__Hash__DeepMerge =
-		rb_define_module_under(NativeSupport__CoreExtensions__Hash, "DeepMerge");
 
   rb_define_singleton_method(NativeSupport__Inflector, "camelize", method_camelize, 1);
   rb_define_singleton_method(NativeSupport__Inflector, "underscore", method_underscore, 1);

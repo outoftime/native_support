@@ -34,16 +34,10 @@ def test_and_benchmark(as, ns, method, values)
   end
 end
 
-hash = { :a => { :b => :c }}
-native_hash = { :a => { :b => :c }}
-native_hash.extend(NativeSupport::CoreExtensions::Hash::DeepMerge)
-recipient_hash = { :a => { :d => :e }}
-
 native_float = 1.23456
 native_float.extend(NativeSupport::CoreExtensions::Float::Rounding)
 test_and_benchmark(1.23456, native_float, :round_with_precision, [0, 1, 2, 3, 4, 5, 6])
 
-exit
 
 test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :constantize,
                    %w(Namespaced Namespaced::Inner Namespaced::Inner::Const ::Namespaced)) # meta testing
