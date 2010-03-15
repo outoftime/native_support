@@ -33,10 +33,11 @@ void Init_native_support() {
 }
 
 VALUE method_camelize(VALUE self, VALUE str) {
-  char * orig_str = StringValuePtr(str);
-  int orig_str_len = strlen(orig_str);
-  char * camelized_str = ALLOC_N(char, orig_str_len);
-  VALUE camelized_ruby_str;
+  char * orig_str = RSTRING(str)->ptr;
+  int orig_str_len = RSTRING(str)->len;
+  VALUE camelized_ruby_str = rb_str_dup(str);
+	rb_str_modify(camelized_ruby_str);
+  char * camelized_str = RSTRING(camelized_ruby_str)->ptr;
   int o; // position in original string
   int c = 0; // position in camelized string
   int state = 1; // 0: Next is unchanged
@@ -48,27 +49,35 @@ VALUE method_camelize(VALUE self, VALUE str) {
       if (state == 1) {
         camelized_str[c++] = orig_str[o] - 32;
       } else {
-        camelized_str[c++] = orig_str[o];
+				if (c != o) {
+					camelized_str[c++] = orig_str[o];
+				} else {
+					++c;
+				}
       }
       state = 0;
     } else if (orig_str[o] == '_' && !state) {
       state = 1;
     } else {
-      camelized_str[c++] = orig_str[o];
+			if (c != o) {
+				camelized_str[c++] = orig_str[o];
+			} else {
+				++c;
+			}
       state = 0;
     }
   }
 
-  camelized_ruby_str = rb_str_new(camelized_str, c);
-  free(camelized_str);
+	RSTRING(camelized_ruby_str)->len = c;
   return camelized_ruby_str;
 }
 
 VALUE method_underscore(VALUE self, VALUE str) {
-  char * orig_str = StringValuePtr(str);
-  int orig_str_len = strlen(orig_str);
-  char * underscore_str = ALLOC_N(char, orig_str_len * 2 - 1);
-  VALUE underscore_ruby_str;
+  char * orig_str = RSTRING(str)->ptr;
+  int orig_str_len = RSTRING(str)->len;
+  VALUE underscore_ruby_str = rb_str_dup(str);
+	rb_str_modify(underscore_ruby_str);
+  char * underscore_str = RSTRING(underscore_ruby_str)->ptr;
   int o = 0, u = 0;
   short state = 0;
 
@@ -80,56 +89,53 @@ VALUE method_underscore(VALUE self, VALUE str) {
       underscore_str[u++] = orig_str[o] + 32;
       state = 1;
     } else {
-      underscore_str[u++] = orig_str[o];
+			if (u != o) {
+				underscore_str[u++] = orig_str[o];
+			} else {
+				++u;
+			}
       state = (orig_str[o] >= 'a' && orig_str[o] <= 'z' || orig_str[o] >= '0' && orig_str[o] <= '9');
     }
   }
 
-  underscore_ruby_str = rb_str_new(underscore_str, u); 
-  free(underscore_str);
+  RSTRING(underscore_ruby_str)->len = u;
   return underscore_ruby_str;
 }
 
 VALUE method_dasherize(VALUE self, VALUE str) {
-	char * orig_str = StringValuePtr(str);
-	int orig_str_len = strlen(orig_str);
-	char * dasherized_str = ALLOC_N(char, orig_str_len);
-	VALUE dasherized_ruby_str;
+	char * orig_str = RSTRING(str)->ptr;
+	int orig_str_len = RSTRING(str)->len;
+	VALUE dasherized_ruby_str = rb_str_dup(str);
+	rb_str_modify(dasherized_ruby_str);
+	char * dasherized_str = RSTRING(dasherized_ruby_str)->ptr;
 	int i;
 
 	for (i = 0; i < orig_str_len; i++) {
 		if (orig_str[i] == '_') {
 			dasherized_str[i] = '-';
-		} else {
-			dasherized_str[i] = orig_str[i];
 		}
 	}
 
-	dasherized_ruby_str = rb_str_new(dasherized_str, i);
 	return dasherized_ruby_str;
 }
 
 VALUE method_demodulize(VALUE self, VALUE str) {
-	char * orig_str = StringValuePtr(str);
-	int orig_str_len = strlen(orig_str);
-	char * demodulized_str = ALLOC_N(char, orig_str_len);
+	char * orig_str = RSTRING(str)->ptr;
+	int orig_str_len = RSTRING(str)->len;
+	int demodulized_start = 0;
 	VALUE demodulized_ruby_str;
-	int o = 0, d = 0;
-	short state = 0;
+	int o, c;
 
 	for (o = 0; o < orig_str_len; o++) {
-		demodulized_str[d++] = orig_str[o];
 		if (orig_str[o] == ':') {
-			if (++state > 1) {
-				d = 0;
+			for(c = 0; o+1 < orig_str_len && orig_str[o+1] == ':'; o++, c++);
+			if (c) {
+				demodulized_start = o + 1;
 			}
-		} else {
-			state = 0;
 		}
 	}
 
-	demodulized_ruby_str = rb_str_new(demodulized_str, d);
-	free(demodulized_str);
+	demodulized_ruby_str = rb_str_new(orig_str + demodulized_start, orig_str_len - demodulized_start);
 	return demodulized_ruby_str;
 }
 
