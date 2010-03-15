@@ -172,13 +172,14 @@ VALUE method_demodulize(VALUE self, VALUE str) {
 }
 
 VALUE method_constantize(VALUE self, VALUE str) {
-	char * full_const_name = StringValuePtr(str);
-	char * current_const_name = ALLOC_N(char, strlen(full_const_name));
+	char * full_const_name = RSTRING(str)->ptr;
+	int full_const_name_length = RSTRING(str)->len;
+	char * current_const_name = ALLOC_N(char, full_const_name_length + 1);
 	VALUE namespace = rb_cObject;
 	int f = 0, c = 0;
 
 	do {
-		if (full_const_name[f] == ':' && full_const_name[f+1] == ':' || full_const_name[f] == '\0') {
+		if (f == full_const_name_length || full_const_name[f] == ':' && full_const_name[f+1] == ':') {
 			if (c) {
 				current_const_name[c] = '\0';
 				namespace = rb_const_get(namespace, rb_intern(current_const_name));
@@ -187,7 +188,7 @@ VALUE method_constantize(VALUE self, VALUE str) {
 		} else {
 			current_const_name[c++] = full_const_name[f];
 		}
-	} while (full_const_name[f++] != '\0');
+	} while (f++ <= full_const_name_length);
 
 	free(current_const_name);
 	return namespace;
