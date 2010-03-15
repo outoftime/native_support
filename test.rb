@@ -45,9 +45,6 @@ test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :constant
 test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :demodulize,
                    %w(Class Namespaced::Class ::TopNamespacedClass Bogus:::Colons One:Colon Trailing::Colons::))
 
-test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :ordinalize,
-                   [1, 2, 3, 4, 10, 11, 12, 13, 14, 21, 22, 23, 24])
-
 test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :dasherize,
                    %w(hello_world hello_there_world hello-world HelloWorld hello\ world))
 

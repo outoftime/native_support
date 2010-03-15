@@ -11,7 +11,6 @@ void Init_native_support();
 VALUE method_camelize(VALUE self, VALUE str);
 VALUE method_underscore(VALUE self, VALUE str);
 VALUE method_dasherize(VALUE self, VALUE str);
-VALUE method_ordinalize(VALUE self, VALUE str);
 VALUE method_demodulize(VALUE self, VALUE str);
 VALUE method_constantize(VALUE self, VALUE str);
 VALUE method_round_with_precision(int argc, VALUE * argv, VALUE self);
@@ -27,7 +26,6 @@ void Init_native_support() {
   rb_define_singleton_method(NativeSupport__Inflector, "camelize", method_camelize, 1);
   rb_define_singleton_method(NativeSupport__Inflector, "underscore", method_underscore, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "dasherize", method_dasherize, 1);
-	rb_define_singleton_method(NativeSupport__Inflector, "ordinalize", method_ordinalize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "demodulize", method_demodulize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "constantize", method_constantize, 1);
 	rb_define_method(NativeSupport__CoreExtensions__Float__Rounding,
@@ -109,42 +107,6 @@ VALUE method_dasherize(VALUE self, VALUE str) {
 
 	dasherized_ruby_str = rb_str_new(dasherized_str, i);
 	return dasherized_ruby_str;
-}
-
-VALUE method_ordinalize(VALUE self, VALUE num) {
-	int cnum = NUM2INT(num);
-	char * ordinalized_str = ALLOC_N(char, log(cnum) + 2);
-	char * suffix;
-	VALUE ordinalized_ruby_str;
-
-	switch (cnum) {
-		case 11:
-		case 12:
-		case 13:
-			suffix = "th";
-			break;
-		default:
-			switch (cnum % 10) {
-				case 1:
-					suffix = "st";
-					break;
-				case 2:
-					suffix = "nd";
-					break;
-				case 3:
-					suffix = "rd";
-					break;
-				default:
-					suffix = "th";
-					break;
-			}
-			break;
-	}
-
-	sprintf(ordinalized_str, "%d%s", cnum, suffix);
-	ordinalized_ruby_str = rb_str_new2(ordinalized_str);
-	free(ordinalized_str);
-	return ordinalized_ruby_str;
 }
 
 VALUE method_demodulize(VALUE self, VALUE str) {
