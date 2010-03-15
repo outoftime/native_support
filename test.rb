@@ -57,3 +57,9 @@ test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :undersco
 test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :camelize,
                    %w(hello_world hello__world hello___world HelloWorld helloWorld
                       hello-world hello\ world))
+
+test_and_benchmark(ActiveSupport::Inflector, NativeSupport::Inflector, :camelize,
+                   [['hello_world', false], ['hello__world', false],
+                    ['hello___world', false], ['HelloWorld', false],
+                    ['helloWorld', false], ['hello-world', false],
+                    ['hello\ world', false]])

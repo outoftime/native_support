@@ -8,7 +8,7 @@ VALUE NativeSupport__CoreExtensions__Float__Rounding;
 
 void Init_native_support();
 
-VALUE method_camelize(VALUE self, VALUE str);
+VALUE method_camelize(int argc, VALUE * argv, VALUE self);
 VALUE method_underscore(VALUE self, VALUE str);
 VALUE method_dasherize(VALUE self, VALUE str);
 VALUE method_demodulize(VALUE self, VALUE str);
@@ -23,7 +23,7 @@ void Init_native_support() {
 	NativeSupport__CoreExtensions__Float__Rounding =
 		rb_define_module_under(NativeSupport__CoreExtensions__Float, "Rounding");
 
-  rb_define_singleton_method(NativeSupport__Inflector, "camelize", method_camelize, 1);
+  rb_define_singleton_method(NativeSupport__Inflector, "camelize", method_camelize, -1);
   rb_define_singleton_method(NativeSupport__Inflector, "underscore", method_underscore, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "dasherize", method_dasherize, 1);
 	rb_define_singleton_method(NativeSupport__Inflector, "demodulize", method_demodulize, 1);
@@ -32,7 +32,8 @@ void Init_native_support() {
 									 "round_with_precision", method_round_with_precision, -1);
 }
 
-VALUE method_camelize(VALUE self, VALUE str) {
+VALUE method_camelize(int argc, VALUE * argv, VALUE self) {
+	VALUE str = argv[0];
   char * orig_str = RSTRING(str)->ptr;
   int orig_str_len = RSTRING(str)->len;
   VALUE camelized_ruby_str = rb_str_dup(str);
@@ -41,8 +42,12 @@ VALUE method_camelize(VALUE self, VALUE str) {
   int o; // position in original string
   int c = 0; // position in camelized string
   int state = 1; // 0: Next is unchanged
-                 // 1: Next is capitalized
-                 // 2+: Next is lower case
+             // 1: Next is capitalized
+             // 2+: Next is lower case
+
+	if (argc == 2 && !argv[1]) {
+		state = 2;
+	}
 
   for(o = 0; o < orig_str_len; o++) {
     if (orig_str[o] >= 'a' && orig_str[o] <= 'z') {
@@ -56,6 +61,8 @@ VALUE method_camelize(VALUE self, VALUE str) {
 				}
       }
       state = 0;
+		} else if (orig_str[o] >= 'A' && orig_str[o] <= 'Z' && state > 1) {
+			camelized_str[c++] = orig_str[o] + 32;
     } else if (orig_str[o] == '_' && !state) {
       state = 1;
     } else {
